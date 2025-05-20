@@ -193,7 +193,7 @@ export const formSchema = z.object({
   "spouse-old-af": z.boolean(),
   "spouse-ssn": z.string(),
   "ss-benefits": z.string(),
-  ssn: z.string(),
+  ssn: z.string().regex(/^\d\d\d-\d\d-\d\d\d\d$/),
   "standard-deduction": z.string(),
   state: z.string(),
   "subtract-21-from-18": z.string(),

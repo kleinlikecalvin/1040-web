@@ -1,11 +1,13 @@
 import "./App.css";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { type FormSchema } from "./formSchema";
+import { type FormSchema, formSchema } from "./formSchema";
 
 function App() {
   const { handleSubmit, register } = useForm<FormSchema>();
 
-  const onSubmit: SubmitHandler<FormSchema> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<FormSchema> = (data) => {
+    formSchema.parse(data);
+  };
 
   return (
     <form className="App" onSubmit={handleSubmit(onSubmit)}>
