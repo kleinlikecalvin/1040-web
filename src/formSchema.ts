@@ -109,111 +109,164 @@ export type FormSchema = {
   "zip-code": string;
 };
 
-export const formSchema = z.object({
-  "1099-tax-witheld": z.string(),
-  "2025-applied-taxes": z.string(),
-  "4972": z.boolean(),
-  "8814": z.boolean(),
-  "8888-attached": z.boolean(),
-  "add-12-and-13": z.string(),
-  "add-16-and-18": z.string(),
-  "add-19-and-20": z.string(),
-  "add-25a-thru-25c": z.string(),
-  "add-lines": z.string(),
-  "additional-child-tax-credit": z.string(),
-  "additional-income": z.string(),
-  "adjusted-gross": z.string(),
-  adjustments: z.string(),
-  "alien-dependent-name": z.string(),
-  "alien-filing-status": z.boolean(),
-  "alien-or-spouse-itemizes-separately": z.boolean(),
-  "amount-from-schedule-2": z.string(),
-  "amount-from-schedule-3": z.string(),
-  "amount-overpaid": z.string(),
-  "amount-owed": z.string(),
-  "apt-num": z.string(),
-  "blind-af": z.boolean(),
-  "business-income": z.string(),
-  "capital-gain-loss-non-req": z.boolean(),
-  "capital-gain-loss-req": z.string(),
-  checking: z.boolean(),
-  "child-tax-credit": z.boolean(),
+export const personalFormSchema = z.object({
+  "first-name-and-middle-initial": z.string(),
+  "last-name": z.string(),
+  ssn: z.string().regex(/^\d\d\d-\d\d-\d\d\d\d$/),
+  "home-address": z.string(),
+  "apt-num": z.string().optional(),
   city: z.string(),
-  "combat-payments": z.string(),
-  "credit-for-other-deps": z.boolean(),
-  "dependent-filing-status": z.boolean(),
-  "dependent-name": z.string(),
+  state: z.string(),
+  "zip-code": z.string(),
+
+  // Presidential Election Campaign
+  "i-fund-presidential-campaign": z.boolean(),
+  "spouse-fund-presidential-campaign": z.boolean(),
+});
+
+export const foreignStuffSchema = z.union([
+  z.object({
+    "foreign-country-name": z.string().min(1),
+    "foreign-country": z.string().min(1),
+    "foreign-postal-code": z.string().min(1),
+  }),
+  z.object({
+    "foreign-country-name": z.string().max(0),
+    "foreign-country": z.string().max(0),
+    "foreign-postal-code": z.string().max(0),
+  }),
+]);
+
+export const spouseFormSchema = z.object({
+  //either required or not
+  "spouse-first-name-and-middle-initial": z.string(),
+  "spouse-last-name": z.string(),
+  "spouse-ssn": z.string().regex(/^\d\d\d-\d\d-\d\d\d\d$/),
+});
+
+export const filingStatusSchema = z
+  .object({
+    // Filing Status
+    "single-filing-status": z.boolean(),
+    "head-filing-status": z.boolean(),
+    "joint-filing-status": z.boolean(),
+    "separately-filing-status": z.boolean(),
+    "qss-filing-status": z.boolean(),
+    "dependent-filing-status": z.boolean(),
+    "dependent-name": z.string(),
+    "alien-filing-status": z.boolean(),
+    "alien-dependent-name": z.string(),
+  })
+  .refine((data) => {
+    const values = Object.values(data);
+    let validity = false;
+
+    for (let i = 0; i < values.length; i++) {
+      if (values[i] === true && validity === false) {
+        validity = true;
+      } else if (values[i] === true && validity === true) {
+        return false;
+      }
+    }
+
+    return validity;
+  });
+
+export const formSchema = z.object({
+  "not-important": z.string(),
+  "the-rest-of-not-important": z.string(),
+
+  // Digital Assets
+  "yes-digital-assets": z.boolean(),
+  "no-digital-assets": z.boolean(),
+
+  // Standard Deduction
+  "someone-claims-me-as-dependent": z.boolean(),
+  "someone-claims-spouse-as-dependent": z.boolean(),
+  "alien-or-spouse-itemizes-separately": z.boolean(),
+
+  // Age/Blindness
+  "old-af": z.boolean(),
+  "blind-af": z.boolean(),
+  "spouse-old-af": z.boolean(),
+  "spouse-blind-af": z.boolean(),
+
+  // Dependents (repeat as needed)
   "dependents-section-first-name": z.string(),
   "dependents-section-last-name": z.string(),
   "dependents-section-relationship": z.string(),
   "dependents-section-ssn": z.string(),
-  "earned-credit": z.string(),
-  "employee-wages": z.string(),
-  "employer-adoption-benefits": z.string(),
-  "exempt-interest": z.string(),
-  "first-name-and-middle-initial": z.string(),
-  "foreign-country": z.string(),
-  "foreign-country-name": z.string(),
-  "foreign-postal-code": z.string(),
-  "head-filing-status": z.boolean(),
-  "home-address": z.string(),
-  "i-fund-presidential-campaign": z.boolean(),
+
+  // Income
   "income-total-amount": z.string(),
+  "employee-wages": z.string(),
+  "tip-income": z.string(),
+  "medicaid-waiver-payments": z.string(),
+  "taxable-dependent-benefits": z.string(),
+  "employer-adoption-benefits": z.string(),
+  "wages-from-form": z.string(),
+  "other-income": z.string(),
+  "combat-payments": z.string(),
+  "add-lines": z.string(),
+  "exempt-interest": z.string(),
+  "taxable-interest": z.string(),
+  "qualified-dividends": z.string(),
+  "ordinary-dividends": z.string(),
   "ira-dist": z.string(),
-  "joint-filing-status": z.boolean(),
-  "last-name": z.string(),
-  "line-34-refund-amount": z.string(),
+  "taxable-amount-1": z.string(),
+  "pensions-annuities": z.string(),
+  "taxable-amount-2": z.string(),
+  "ss-benefits": z.string(),
+  "taxable-amount-3": z.string(),
   "lump-sum-election": z.boolean(),
+  "capital-gain-loss-req": z.string(),
+  "capital-gain-loss-non-req": z.boolean(),
+  "additional-income": z.string(),
+  "total-income": z.string(),
+  adjustments: z.string(),
+  "adjusted-gross": z.string(),
+  "standard-deduction": z.string(),
+  "business-income": z.string(),
+  "add-12-and-13": z.string(),
+  "taxable-income": z.string(),
+
+  // Tax
+  tax: z.string(),
+  "8814": z.boolean(),
+  "4972": z.boolean(),
   "manual-form-number-checkbox": z.boolean(),
   "manual-form-number-input": z.string(),
-  "medicaid-waiver-payments": z.string(),
-  "no-digital-assets": z.boolean(),
-  "not-important": z.string(),
-  "old-af": z.boolean(),
-  "op-credit": z.string(),
-  "ordinary-dividends": z.string(),
-  "other-forms-tax-witheld": z.string(),
-  "other-income": z.string(),
+  "amount-from-schedule-2": z.string(),
+  "add-16-and-18": z.string(),
+  "child-tax-credit": z.boolean(),
+  "amount-from-schedule-3": z.string(),
+  "add-19-and-20": z.string(),
+  "subtract-21-from-18": z.string(),
   "other-taxes": z.string(),
-  "pensions-annuities": z.string(),
-  "qss-filing-status": z.boolean(),
-  "qualified-dividends": z.string(),
+  "total-taxes": z.string(),
+
+  // Refund
+  "amount-overpaid": z.string(),
+  "line-34-refund-amount": z.string(),
+  "8888-attached": z.boolean(),
   "routing-number": z.string(),
+  checking: z.boolean(),
   "savings-account": z.boolean(),
   "savings-number": z.string(),
+  "2025-applied-taxes": z.string(),
+
+  // Additional/Other fields (add as needed)
+  "add-25a-thru-25c": z.string(),
+  "additional-child-tax-credit": z.string(),
+  "credit-for-other-deps": z.boolean(),
+  "earned-credit": z.string(),
+  "other-forms-tax-witheld": z.string(),
+  "op-credit": z.string(),
   "schedule-3-amount": z.string(),
-  "separately-filing-status": z.boolean(),
-  "single-filing-status": z.boolean(),
-  "someone-claims-me-as-dependent": z.boolean(),
-  "someone-claims-spouse-as-dependent": z.boolean(),
-  "spouse-blind-af": z.boolean(),
-  "spouse-first-name-and-middle-initial": z.string(),
-  "spouse-fund-presidential-campaign": z.boolean(),
-  "spouse-last-name": z.string(),
-  "spouse-old-af": z.boolean(),
-  "spouse-ssn": z.string(),
-  "ss-benefits": z.string(),
-  ssn: z.string().regex(/^\d\d\d-\d\d-\d\d\d\d$/),
-  "standard-deduction": z.string(),
-  state: z.string(),
-  "subtract-21-from-18": z.string(),
-  tax: z.string(),
   "tax-payments-and-2023-return": z.string(),
-  "tax-penalty": z.string(),
   "tax-witheld": z.string(),
-  "taxable-amount-1": z.string(),
-  "taxable-amount-2": z.string(),
-  "taxable-amount-3": z.string(),
-  "taxable-dependent-benefits": z.string(),
-  "taxable-income": z.string(),
-  "taxable-interest": z.string(),
-  "the-rest-of-not-important": z.string(),
-  "tip-income": z.string(),
-  "total-income": z.string(),
   "total-other-payments-and-refund-credits": z.string(),
   "total-payments": z.string(),
-  "total-taxes": z.string(),
-  "wages-from-form": z.string(),
-  "yes-digital-assets": z.boolean(),
-  "zip-code": z.string(),
+  "amount-owed": z.string(),
+  "tax-penalty": z.string(),
 });
